@@ -1,7 +1,7 @@
 
 %%         TEAM MATES     :  Hassif Abdulahi Mustafa, Sayan Nandy, Faizan Mohamed, Pancho Krastev and Ahnaf Hassan
 %%         PROJECT        :  Code for Real-time Audio Descrambler, Second Year Scenario
-%%         DATE           :  10 - DEC - 2019
+%%         DATE           :  10 - DEC - 2018
 %% Setting up the analysis for the original messages  
 clc
 clear 
