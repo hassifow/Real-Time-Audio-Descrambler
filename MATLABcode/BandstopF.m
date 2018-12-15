@@ -11,7 +11,7 @@ function Hd = BandstopF
 % All frequency values are in Hz.
 Fs     = 44100;  % Sampling Frequency
 
-N      = 10;      % Order
+N      = 2;      % Order
 Fstop1 = 7900;   % First Stopband Frequency
 Fstop2 = 8100;   % Second Stopband Frequency
 Astop  = 100;     % Stopband Attenuation (dB)
