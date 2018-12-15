@@ -174,12 +174,12 @@ float bandstop(float input)
 
 void SysTick_Handler(void)
 {
-    P6OUT |= BIT0; // set P6.0 high on entering this interrupt service routine (isr). Include your codes below
+    P6OUT |= BIT0; // set P6.0 high on entering this interrupt service routine (isr).
 
       static volatile float currentADC = 0;
       static int j = 0;
-
-      currentADC = ADC14_getResult(ADC_MEM0) / 4;  // Get the conversion result on P_5.
+      // Get the conversion result on P_5.
+      currentADC = ADC14_getResult(ADC_MEM0) / 4;  // We do this because the ADC is set to use 10 bits but P2OUT is only 8 bits.
 
       // BandStop filter input, removing 8kHz tone
       float outputBandstop = bandstop(currentADC);
@@ -188,7 +188,7 @@ void SysTick_Handler(void)
       // multiplying it with a carrier of 7kHz frequency
       float output = (outputBandstop * sine_value[j]); 
 
-     P2OUT = (output);  // We do this because the ADC is set to use 10 bits but P2OUT is only 8 bits.
+      P2OUT = (output);  
 
          j++;
                 if (j == 50)
@@ -198,7 +198,7 @@ void SysTick_Handler(void)
         MAP_ADC14_enableConversion();
         MAP_ADC14_toggleConversionTrigger();
 
-      P6OUT &= ~BIT0; // set P6.0 low on exiting this interrupt service routine (isr). Include yours codes above
+    P6OUT &= ~BIT0; // set P6.0 low on exiting this interrupt service routine (isr). 
 }
 
 /*  ADC Interrupt Handler. This handler is called whenever there is a conversion
