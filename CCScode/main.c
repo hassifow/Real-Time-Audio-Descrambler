@@ -1,8 +1,9 @@
-/*********************
+/**************************************************************************************************
  * Code for Real-time Audio Descrambler, Second Year Scenario.
- * Team 5: Hassif Abdulahi Mustafa, Sayan Nandy, Faizan Mohamed, Pancho Krastev and Ahnaf Hassan
- * Date: 12 December 2018
- ******************************************************************************/
+ * Chief Programmer: Hassif Abdulahi Mustafa
+ * Team Members: Hassif Abdulahi Mustafa, Sayan Nandy, Faizan Mohamed, Pancho Krastev and Ahnaf Hassan
+ * UCL EEE Dept, 12 December 2018
+ **************************************************************************************************/
 
  /* DriverLib Includes */
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
@@ -13,11 +14,10 @@
 #define PI 3.14159
 static volatile int sine_value[50];
 
-
 // FILTER IMPLEMENTATION
 
 // 2nd order Bandstop Chebyshev II Filter Coefficients
-// static float bandstopGA      = 0.9874;
+static float bandstopGA      = 0.9874;
 static float bandstopNum[3] = {0.9874, -1.0585, 0.9874};
 static float bandstopDen[3] = {1, -1.0585, 0.9747};
 
@@ -28,14 +28,14 @@ int main(void)
 {
     /* Halting the Watchdog */
     MAP_WDT_A_holdTimer();  // This command is used in almost all programs to stop the MSP from stopping automatically.
-
-
+        
+    }
 
        int t;
-
-           for( t = 0; t < 50; t++)
+           //create the 7kHz sine function at FS = 50kHz
+           for( t = 0; t < 50; t++) 
            {
-               sine_value[t] = 255*(sin(2*PI*7*(t/(float)50))+1)/2;
+               sine_value[t] = sin(2.0f*PI*7.0f*(t/(float)50)); //50 sine[s] values varies between -1 and 1
            }
 
 
@@ -151,7 +151,7 @@ void updateBuffer(float *w)
     w[1] = w[2];
 }
 
-// Second-order IIR filter
+// Second-order IIR filter got the formula from matlab fdatool
 float filter(float x, float *w, float *b, float *a)
 {
     w[2]    = x - (a[1] * w[1]) - (a[2] * w[0]);
@@ -179,18 +179,16 @@ void SysTick_Handler(void)
       static volatile float currentADC = 0;
       static int j = 0;
 
-      currentADC = ADC14_getResult(ADC_MEM0);  // Get the conversion result on P_5.
+      currentADC = ADC14_getResult(ADC_MEM0) / 4;  // Get the conversion result on P_5.
 
       // BandStop filter input, removing 8kHz tone
       float outputBandstop = bandstop(currentADC);
 
       // Unscrambling the frequencies by
       // multiplying it with a carrier of 7kHz frequency
-      float outputBandstopSine = (outputBandstop * sine_value[j]);
+      float output = (outputBandstop * sine_value[j]); 
 
-      float output = outputBandstopSine; 
-
-     P2OUT = (output) / 4;  // We do this because the ADC is set to use 10 bits but P2OUT is only 8 bits.
+     P2OUT = (output);  // We do this because the ADC is set to use 10 bits but P2OUT is only 8 bits.
 
          j++;
                 if (j == 50)
