@@ -1,35 +1,7 @@
 /*********************
- * Template for Real-time Audio Descrambler, Second Year Scenario.
- * This template is provided for your use in the Real-time Audio Descrambler Scenario.
- *
- * The template sets up all the important peripherals on the MSP432 for you.  This includes setting up the 48 MHz
- * high-frequency crystal (HFXT), the master clock MCLK to run at 48 MHz, the internal core voltage for 48 MHz
- * operation, the ADC reference voltages and outputting them to P5.6 and P5.7.
- * However, you need to set up the ADC yourself.
- *
- * Most importantly, the template sets up the timer SysTick to count 960 clock cycles.  Every time 960 clock cycles
- * or periods have passed, SysTick will generate an interrupt and the interrupt service routine SysTick_Handler will be called.
- * Since the master clock is 48 MHz, SysTick_Handler will be called 50,000 times a second (48 MHz / 960 = 50,000) or 50 kHz.
- * Any commands or functions inside SysTick_Handler will therefore be executed at 50 kHz which can be used as
- * your sampling frequency.
- *
- * The descrambling and filtering functions should be implemented inside the SysTick_Handler as these are
- * related to and run at the sampling frequency, i.e. 50 kHz.
- *
- * Anything else that only needs to be run once but not repeatedly should be implemented inside the function main{}.
- *
- * You need to make your codes as efficient as possible.  Any codes you put in SysTick_Handler must be completed
- * before the next interrupt is generated.  To see how long it will take to perform all the functions inside SysTick_Handler,
- * in this template, P6.0 is set to high at the start of SysTick_Handler.  At the end of SysTick_Handler, P6.0 is set to low.
- * You can therefore use an oscilloscope to measure the output at P6.0 to see how long it takes the SysTick_Handler to
- * complete all the codes there.
- *
- * You should save the whole template folder in the workspace folder of the Code Composer Studio (CCS).  Then within CCS,
- * "import" this project.
- *
- *
- *
- * By Dr Chin-Pang Liu, University College London, 2018
+ * Code for Real-time Audio Descrambler, Second Year Scenario.
+ * Team 5: Hassif Abdulahi Mustafa, Sayan Nandy, Faizan Mohamed, Pancho Krastev and Ahnaf Hassan
+ * Date: 12 December 2018
  ******************************************************************************/
 
  /* DriverLib Includes */
@@ -189,7 +161,7 @@ float filter(float x, float *w, float *b, float *a)
 }
 
 
-// Implements IIR Bandstop filter, 10th order
+// Implements IIR Bandstop filter, 2nd order
 float bandstop(float input)
 {
   updateBuffer(bandstopBuff);
@@ -208,16 +180,15 @@ void SysTick_Handler(void)
       static int j = 0;
 
       currentADC = ADC14_getResult(ADC_MEM0);  // Get the conversion result on P_5.
-      float input = currentADC - 8191.0f; // converting  to signed
 
       // BandStop filter input, removing 8kHz tone
-      float outputBandstop = bandstop(input);
+      float outputBandstop = bandstop(currentADC);
 
       // Unscrambling the frequencies by
       // multiplying it with a carrier of 7kHz frequency
       float outputBandstopSine = (outputBandstop * sine_value[j]);
 
-      float output = outputBandstopSine + 8191.0f; // converting back to unsigned
+      float output = outputBandstopSine; 
 
      P2OUT = (output) / 4;  // We do this because the ADC is set to use 10 bits but P2OUT is only 8 bits.
 
